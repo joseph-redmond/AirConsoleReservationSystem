@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AirConsoleLibrary.Models
 {
-    class PassengerModel
+    public class PassengerModel
     {
         public PassengerModel(string firstName, string lastName, string passportNumber)
         {
@@ -16,7 +16,7 @@ namespace AirConsoleLibrary.Models
         }
         private string FirstName { get; }
         private string LastName { get; }
-        private string FullName { 
+        public string FullName { 
             get
             {
                 return $"{FirstName} {LastName}";

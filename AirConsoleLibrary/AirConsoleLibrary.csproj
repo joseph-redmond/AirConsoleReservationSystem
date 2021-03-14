@@ -41,7 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\GridSpotModel.cs" />
+    <Compile Include="EnumHelper.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Models\PassengerSeatingModel.cs" />
     <Compile Include="Models\ManifestModel.cs" />
     <Compile Include="Models\PassengerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
