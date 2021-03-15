@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AirConsoleLibrary.Models;
+﻿using AirConsoleLibrary.Models;
+using System;
 namespace AirConsoleUI
 {
     class Program
@@ -16,20 +12,22 @@ namespace AirConsoleUI
             X
 
         }*/
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
             ManifestModel manifest = new ManifestModel();
-            
+
             string rawUserInput = "";
-            
+
             do
             {
                 rawUserInput = MainMenuGetUserInput();
                 if (rawUserInput.ToUpper() == "R")
                 {
+                    Console.Clear();
                     string flightClass = FlightClassPrompt();
                     if (flightClass.ToUpper() == "B")
                     {
+                        Console.Clear();
                         PrintBuisnessClassGrid(manifest);
                         Console.WriteLine();
                         Console.Write("Please Select the passengers seat (ex - 1A): ");
@@ -45,7 +43,7 @@ namespace AirConsoleUI
                         }
                         else
                         {
-                            Console.WriteLine($"Seat: {seat.SeatNumber}{seatLetter} is not available.");
+                            Console.WriteLine($"Seat is not available.");
                         }
                         Console.WriteLine("Press any key to go back to main menu");
                         Console.ReadKey();
@@ -54,6 +52,7 @@ namespace AirConsoleUI
                     else if (flightClass.ToUpper() == "E")
                     {
                         PrintEconomyClassGrid(manifest);
+                        Console.WriteLine();
                         Console.Write("Please Select the passengers seat (ex - 1A): ");
                         string userInput = Console.ReadLine();
                         (int rowNumber, char seatLetter) = splitUserInput(userInput);
@@ -74,15 +73,56 @@ namespace AirConsoleUI
                     }
                     else
                     {
-                        throw new Exception("You Don Fucked The Duck On This One");
+                        Console.WriteLine("Please enter valid input");
                     }
                 }
                 else if (rawUserInput.ToUpper() == "S")
                 {
-
+                    Console.Clear();
+                    string seatID = "";
+                   
+                    Console.WriteLine("Seat Verification");
+                    Console.Write("Please enter the seat id (ex - 1A): ");
+                    seatID = Console.ReadLine();
+                    (int seatRow, char seatLetter) = splitUserInput(seatID);
+                    PassengerSeatingModel seat = GetUserSelectedTakenSeat((seatRow, seatLetter, manifest));
+                    try
+                    {
+                        if (seat.passenger.FirstName != null)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("Passenger Details");
+                            Console.WriteLine($"Firstname: {seat.passenger.FirstName}");
+                            Console.WriteLine($"Lastname: {seat.passenger.LastName}");
+                            Console.WriteLine($"Passport Number: {seat.passenger.PassportNumber}");
+                            Console.WriteLine();
+                            Console.Write("Please press any key to continue to main menu: ");
+                            Console.ReadKey();
+                        }
+                    }
+                    catch(NullReferenceException ex) {
+                        Console.WriteLine("The seat entered was not found");
+                        Console.WriteLine("Please press any key to continue to main menu: ");
+                        Console.ReadKey();
+                    }
                 }
             } while (rawUserInput.ToUpper() != "X");
             Console.WriteLine("Thank you for using our system today");
+        }
+
+        private static PassengerSeatingModel GetUserSelectedTakenSeat((int seatRow, char seatLetter, ManifestModel manifest) enteredInfo)
+        {
+            foreach (var seat in enteredInfo.manifest.SeatsTaken)
+            {
+                if (seat.SeatNumber == enteredInfo.seatRow)
+                {
+                    if (Convert.ToChar(seat.SeatLetter.ToString()) == enteredInfo.seatLetter)
+                    {
+                        return seat;
+                    }
+                }
+            }
+            return new PassengerSeatingModel();
         }
 
         private static (int seatRow, char seatLetter) splitUserInput(string userInput)
@@ -95,9 +135,9 @@ namespace AirConsoleUI
                 seatLetter = Convert.ToChar(userInput.Substring(1, 1));
                 return (seatRow, seatLetter);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                
             }
             return (seatRow, seatLetter);
         }
@@ -106,13 +146,13 @@ namespace AirConsoleUI
         private static void PrintEconomyClassGrid(ManifestModel manifest)
         {
             var currentRow = 0;
-            foreach(var seat in manifest.Seats)
+            foreach (var seat in manifest.Seats)
             {
-                if(seat.SeatNumber > 8)
+                if (seat.SeatNumber > 8)
                 {
                     break;
                 }
-                if(currentRow == 0)
+                if (currentRow == 0)
                 {
                     Console.Write("  ");
                     Console.Write(" A ");
@@ -121,8 +161,9 @@ namespace AirConsoleUI
                     Console.Write(" D ");
                     Console.Write(" E ");
                 }
-                if(currentRow < 6)
+                if (currentRow < 5)
                 {
+                    currentRow = seat.SeatNumber;
                     continue;
                 }
                 if (currentRow != seat.SeatNumber)
@@ -135,24 +176,24 @@ namespace AirConsoleUI
                 {
                     Console.Write(" X ");
                 }
-                else if(seat.Availability == Enums.SeatStatus.Available)
+                else if (seat.Availability == Enums.SeatStatus.Available)
                 {
                     Console.Write("   ");
                 }
-            } 
+            }
 
         }
 
         private static void PrintBuisnessClassGrid(ManifestModel manifest)
         {
             var currentRow = 0;
-            foreach(var seat in manifest.Seats)
+            foreach (var seat in manifest.Seats)
             {
-                if(seat.SeatNumber > 5)
+                if (seat.SeatNumber > 5)
                 {
                     break;
                 }
-                if(currentRow == 0)
+                if (currentRow == 0)
                 {
                     Console.Write("  ");
                     Console.Write(" A ");
@@ -171,20 +212,21 @@ namespace AirConsoleUI
                 {
                     Console.Write(" X ");
                 }
-                else if(seat.Availability == Enums.SeatStatus.Available)
+                else if (seat.Availability == Enums.SeatStatus.Available)
                 {
                     Console.Write("   ");
                 }
-            } 
+            }
         }
 
         private static PassengerSeatingModel GetUserSelectedSeat((int rowNumber, char seatLetter, ManifestModel manifest) enteredInfo)
         {
-            foreach(var seat in enteredInfo.manifest.Seats)
+            foreach (var seat in enteredInfo.manifest.Seats)
             {
-                if(seat.SeatNumber == enteredInfo.rowNumber)
+                if (seat.SeatNumber == enteredInfo.rowNumber)
                 {
-                    if(Convert.ToChar(seat.SeatLetter.ToString()) == enteredInfo.seatLetter){
+                    if (Convert.ToChar(seat.SeatLetter.ToString()) == enteredInfo.seatLetter)
+                    {
                         return seat;
                     }
                 }
@@ -195,7 +237,7 @@ namespace AirConsoleUI
         private static bool VerifySeatIsAvailable((PassengerSeatingModel seat, ManifestModel manifest) enteredInfo)
         {
             bool seatStatus = false;
-            foreach(var seat in enteredInfo.manifest.Seats)
+            foreach (var seat in enteredInfo.manifest.Seats)
             {
                 if (seat.SeatNumber == enteredInfo.seat.SeatNumber)
                 {
@@ -218,12 +260,24 @@ namespace AirConsoleUI
 
         private static PassengerModel CreatePassenger()
         {
-            Console.Write("What is your first name: ");
-            string firstName = Console.ReadLine();
-            Console.Write("What is your last name: ");
-            string lastName = Console.ReadLine();
-            Console.Write("What is your passport number: ");
-            string passportNumber = Console.ReadLine();
+            string firstName = "";
+            string lastName = "";
+            string passportNumber = "";
+            do
+            {
+                Console.Write("What is your first name: ");
+                firstName = Console.ReadLine();
+                Console.Write("What is your last name: ");
+                lastName = Console.ReadLine();
+                Console.Write("What is your passport number: ");
+                passportNumber = Console.ReadLine();
+                if(firstName.Trim() == "" || lastName.Trim() == "" || passportNumber.Trim() == "")
+                {
+                    Console.WriteLine("You left fields blank please try again");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            } while (firstName.Trim() == "" || lastName.Trim() == "" || passportNumber.Trim() == "");
             //TODO Verify User inputted data
             PassengerModel passenger = new PassengerModel(firstName, lastName, passportNumber);
             return passenger;
